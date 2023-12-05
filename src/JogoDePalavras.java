@@ -30,10 +30,13 @@ public class JogoDePalavras {
         }
     }
 
-    public void SorteioDaLetra() {
-        letraSorteada = (char) ('a' + Math.random() * ('z' - 'a' + 1));
-        System.out.println("A letra sorteada é: " + letraSorteada);
+    public class Principal {
+    public static void main(String[] args) {
+        SorteioDaLetra sorteio = new SorteioDaLetra();
+        char letraSorteada = sorteio.sortearLetra();
+        System.out.println("Letra sorteada: " + letraSorteada);
     }
+}
 
     public boolean VerificarWordBD(String palavra, List<String> bancoDeDados) {
         return bancoDeDados.contains(palavra.toLowerCase());
