@@ -1,5 +1,5 @@
 import java.util.Random;
 
-public class SortearLetra {
+public class SorteioDaLetra {
 
 }
