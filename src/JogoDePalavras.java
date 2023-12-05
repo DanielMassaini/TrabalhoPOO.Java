@@ -84,8 +84,6 @@ public class JogoDePalavras {
         }
     }
 
-    public static void main(String[] args) {
-        JogoDePalavras jogo = new JogoDePalavras();
         jogo.inicioDoJogo();
     }
 }
