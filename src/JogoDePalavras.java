@@ -86,4 +86,3 @@ public class JogoDePalavras {
 
         jogo.inicioDoJogo();
     }
-}
