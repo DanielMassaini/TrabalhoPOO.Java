@@ -5,6 +5,8 @@ import java.nio.file.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class JogoDePalavras {
     private HashSet<String> words;
@@ -39,6 +41,11 @@ public class JogoDePalavras {
         return bancoDeDados.contains(palavra.toLowerCase());
     }
 
+    public void mostrarResultados() {
+        System.out.println("Jogo finalizado! Você informou " + palavrasInformadas.size() + " palavras diferentes válidas durante este jogo.");
+        System.out.println("As palavras que você informou são: " + palavrasInformadas);
+    }
+
     public void inicioDoJogo() {
         try {
             List<String> bancoDeDados = null;
@@ -53,11 +60,22 @@ public class JogoDePalavras {
             SorteioDaLetra();
             Scanner scanner = new Scanner(System.in);
 
+            // Adicionando temporizador para 30 segundos
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                public void run() {
+                    System.out.println("Tempo esgotado! Jogo finalizado.");
+                    jogoAtivo = false;
+                    mostrarResultados();
+                }
+            }, 30000);
+
             while (jogoAtivo) {
                 System.out.println("Digite uma palavra que começa com a letra " + letraSorteada + " ou 'sair' para terminar o jogo:");
                 String palavra = scanner.nextLine().toLowerCase();
 
                 if (palavra.equals("sair")) {
+                    jogoAtivo = false;
                     break;
                 }
 
@@ -74,8 +92,9 @@ public class JogoDePalavras {
                 }
             }
 
-            System.out.println("Jogo finalizado! Você informou " + palavrasInformadas.size() + " palavras diferentes durante este jogo.");
-            System.out.println("As palavras que você informou são: " + palavrasInformadas);
+            // Cancelando o temporizador após o jogo
+            timer.cancel();
+            mostrarResultados();
         } finally {
             // Recursos de limpeza, se necessário
         }
@@ -84,6 +103,5 @@ public class JogoDePalavras {
     public static void main(String[] args) {
         JogoDePalavras jogo = new JogoDePalavras();
         jogo.inicioDoJogo();
-        //jogo.inicioDoJogo();
     }
 }
