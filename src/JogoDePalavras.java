@@ -1,16 +1,20 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.HashSet;
-import java.util.Random;
+import java.util.List;
 import java.util.Scanner;
 
-public class JogoPalavras {
-    private HashSet<String> palavras;
+public class JogoDePalavras {
+    private HashSet<String> words;
     private char letraSorteada;
     private boolean jogoAtivo;
+    private HashSet<String> palavrasInformadas;
 
-    public JogoPalavras() {
-        palavras = new HashSet<>();
+    public JogoDePalavras() {
+        words = new HashSet<>();
+        palavrasInformadas = new HashSet<>();
         jogoAtivo = true;
     }
 
@@ -18,7 +22,7 @@ public class JogoPalavras {
         try {
             Scanner scanner = new Scanner(new File(arquivo));
             while (scanner.hasNext()) {
-                palavras.add(scanner.next().toLowerCase());
+                words.add(scanner.next().toLowerCase());
             }
             scanner.close();
         } catch (FileNotFoundException e) {
@@ -26,44 +30,59 @@ public class JogoPalavras {
         }
     }
 
-    public void sortearLetra() {
-        Random random = new Random();
-        letraSorteada = (char) ('a' + random.nextInt('z' - 'a' + 1));
+    public void SorteioDaLetra() {
+        letraSorteada = (char) ('a' + Math.random() * ('z' - 'a' + 1));
         System.out.println("A letra sorteada é: " + letraSorteada);
     }
 
-    public void encerrarJogo() {
-        jogoAtivo = false;
+    public boolean VerificarWordBD(String palavra, List<String> bancoDeDados) {
+        return bancoDeDados.contains(palavra.toLowerCase());
     }
 
-    public void iniciarJogo() {
-        carregarPalavras("pexe.txt");
-        sortearLetra();
-        Scanner scanner = new Scanner(System.in);
-
-        while (jogoAtivo) {
-            System.out.println("Digite uma palavra que começa com a letra " + letraSorteada + " ou 'sair' para terminar o jogo:");
-            String palavra = scanner.nextLine().toLowerCase();
-
-            if (palavra.equals("sair")) {
-                encerrarJogo();
-            } else if (palavra.length() >= 4 && palavra.charAt(0) == letraSorteada) {
-                if (palavras.contains(palavra)) {
-                    System.out.println("Você já informou essa palavra!");
-                } else {
-                    palavras.add(palavra);
-                }
-            } else {
-                System.out.println("Palavra inválida!");
+    public void inicioDoJogo() {
+        try {
+            List<String> bancoDeDados = null;
+            try {
+                bancoDeDados = Files.readAllLines(Paths.get("BancoDePalavras.txt"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        }
 
-        System.out.println("Jogo finalizado! Você informou " + palavras.size() + " palavras diferentes.");
-        System.out.println("As palavras que você informou são: " + palavras);
+            words.addAll(bancoDeDados);
+
+            SorteioDaLetra();
+            Scanner scanner = new Scanner(System.in);
+
+            while (jogoAtivo) {
+                System.out.println("Digite uma palavra que começa com a letra " + letraSorteada + " ou 'sair' para terminar o jogo:");
+                String palavra = scanner.nextLine().toLowerCase();
+
+                if (palavra.equals("sair")) {
+                    break;
+                }
+
+                if (palavra.length() >= 4 && palavra.charAt(0) == letraSorteada && VerificarWordBD(palavra, bancoDeDados)) {
+                    if (palavrasInformadas.contains(palavra)) {
+                        System.out.println("Você já informou essa palavra durante este jogo!");
+                    } else {
+                        System.out.println("Palavra válida! Adicionada ao banco de dados.");
+                        words.add(palavra);
+                        palavrasInformadas.add(palavra);
+                    }
+                } else {
+                    System.out.println("Palavra inválida!");
+                }
+            }
+
+            System.out.println("Jogo finalizado! Você informou " + palavrasInformadas.size() + " palavras diferentes durante este jogo.");
+            System.out.println("As palavras que você informou são: " + palavrasInformadas);
+        } finally {
+            // Recursos de limpeza, se necessário
+        }
     }
 
     public static void main(String[] args) {
-        JogoPalavras jogo = new JogoPalavras();
-        jogo.iniciarJogo();
+        JogoDePalavras jogo = new JogoDePalavras();
+        jogo.inicioDoJogo();
     }
 }
